@@ -1,11 +1,53 @@
 ---
-title: "class-2023-06-22"
+title: "Baby Names"
+execute: 
+  echo: false
+  warning: false
 ---
 
-This is a Quarto website.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+This is an example plot using data from the babynames package.
 
 ```{r}
-1 + 1
+#| message: false
+library(tidyverse)
+library(babynames)
+library(ggthemes)
 ```
+
+```{r}
+babynames %>%
+  filter(str_detect(name, "i$")) %>%
+  summarize(.by = c(year, sex), n=sum(prop)) %>% 
+  ggplot(aes(x = year, y = n, color = sex)) +
+  geom_area(aes(fill = sex)) +
+  scale_x_continuous(breaks=seq(1900, 2016, 4), limits=c(1900, 2016)) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme_clean() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(title="U.S. Babies With Names Ending in I",
+       subtitle="More and more babies are getting I-names For Boys",
+       x="Year",
+       y="Percent of Babies",
+       caption="Room 5 Alan Tao")
+```
+
+```{r}
+babynames %>%
+  filter(str_detect(name, "^A")) %>%
+  summarize(.by = c(year, sex), n=sum(prop)) %>% 
+  ggplot(aes(x = year, y = n, color = sex)) +
+  geom_area(aes(fill = sex))
+```
+
+```{r}
+babynames %>%
+  mutate(first_letter = substr(name, 1, 1)) %>%
+  summarize(prop=sum(prop), .by = c(first_letter, year)) %>%
+  ggplot(aes(x=year, y=prop, color=first_letter)) +
+  geom_line() +
+  labs(x="Year",
+       y="",
+       title="First Letter Popularity Over Time",
+       color="First Letter")
+```
+
